@@ -1,5 +1,8 @@
 const FILES_TO_CACHE = [
-
+  '/index.html',
+  '/style.css',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
 
@@ -13,5 +16,24 @@ self.addEventListener('install', (event) => {
       .open(PRECACHE)
       .then((cache) => cache.addAll(FILES_TO_CACHE))
       .then(self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  const currentCaches = [PRECACHE, RUNTIME];
+  event.waitUntil(
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return cacheNames.filter((cacheName) => !currentCaches.includes(cacheName));
+      })
+      .then((cachesToDelete) => {
+        return Promise.all(
+          cachesToDelete.map((cacheToDelete) => {
+            return caches.delete(cacheToDelete);
+          })
+        );
+      })
+      .then(() => self.clients.claim())
   );
 });
