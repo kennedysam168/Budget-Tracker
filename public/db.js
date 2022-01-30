@@ -1,22 +1,27 @@
 let db;
 
-const request = indexedDB.open('budgetdb');
+const request = indexedDB.open('budgetdb', 1);
 
 request.onupgradeneeded = function (e) {
     console.log('Upgrade needed in IndexDB');
     db = e.target.result;
-    if (db.objectStoreNames.length === 0) {
-      db.createObjectStore('BudgetStore', { autoIncrement: true });
-    }
+      db.createObjectStore('budgetdb', { autoIncrement: true });
   };
 
+
+request.onsuccess = function(event) {
+    db = event.target.result;
+    if (navigator.onLine) {
+      checkDatabase();
+    }
+  };
 request.onerror = function (e) {
     console.log(`Error' ${e.target.errorCode}`);
   };
 
   getAll.onsuccess = function () {
     if (getAll.result.length > 0) {
-      fetch('/api/transaction/bulk', {
+      fetch('api/transaction/bulk', {
         method: 'POST',
         body: JSON.stringify(getAll.result),
         headers: {
@@ -27,8 +32,8 @@ request.onerror = function (e) {
       .then((response) => response.JSON())
       .then((res) => {
         if (res.length !== 0) {
-            transaction = db.transaction(['BudgetStore'], 'readwrite');
-            const currentStore = transaction.objectStore('BudgetStore');
+            transaction = db.transaction(['budgetdb'], 'readwrite');
+            const currentStore = transaction.objectStore('budgetdb');
             currentStore.clear();
             console.log('Clearing store 🧹');
           }
@@ -39,8 +44,8 @@ request.onerror = function (e) {
 
 const saveRecord = (record) => {
     console.log('Save record invoked');
-    const transaction = db.transaction(['BudgetStore'], 'readwrite');
-    const store = transaction.objectStore('BudgetStore');
+    const transaction = db.transaction(['budgetdb'], 'readwrite');
+    const store = transaction.objectStore('budgetdb');
     store.add(record);
   };
   window.addEventListener('online', checkDatabase);
@@ -54,3 +59,5 @@ const saveRecord = (record) => {
       checkDatabase();
     }
   };
+
+  window.addEventListener("online", checkDatabase);
