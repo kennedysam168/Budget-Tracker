@@ -23,16 +23,30 @@ const config = {
           },
         },
       ],
-    }
-}
+    },
 
 plugins: [
   new WebpackPwaManifest({
+    inject: false,
     fingerprints: false,
     name: 'Budget Tracker',
-    description: 'An application that allows you to view your budget info offline.',
     start_url: '/',
+    theme_color: "#ffffff",
+    background_color: "#ffffff",
+
+    icons: [
+      {
+        src: path.resolve(
+          __dirname,
+          "public/icons/icon-512x512.png",
+          "public/icons/icon-192x192.png"
+          ),
+        size: [72, 96, 128, 144, 152, 192, 384, 512]
+      }
+    ]
   })
+  
 ]
+}
 
 module.exports = config;
